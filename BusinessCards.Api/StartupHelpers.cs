@@ -2,8 +2,8 @@ using BusinessCards.Infrastructure.Auth;
 using BusinessCards.Infrastructure.Database;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 
 namespace BusinessCards.Api;
 
@@ -15,7 +15,33 @@ public static partial class StartupHelpers
         builder.Configuration.GetSection(AuthOptions.Section).Bind(authOptions);
 
         builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen();
+        builder.Services.AddSwaggerGen(opt =>
+        {
+            opt.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            {
+                Description = "Put your bearer token here",
+                Name = "Authorization",
+                In = ParameterLocation.Header,
+                Type = SecuritySchemeType.Http,
+                Scheme = JwtBearerDefaults.AuthenticationScheme
+            });
+
+            opt.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = JwtBearerDefaults.AuthenticationScheme
+                        }
+                    },
+                    Array.Empty<string>()
+                }
+            });
+        });
+
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddMemoryCache();
         builder.Services.AddMediatR(AppDomain.CurrentDomain.GetAssemblies());
@@ -39,6 +65,8 @@ public static partial class StartupHelpers
 
                 opt.TokenValidationParameters = new TokenValidationParameters
                 {
+                    ValidateAudience = false,
+                    ValidateIssuer = false,
                     ValidateLifetime = false,
                     IssuerSigningKeyResolver = (_, _, keyId, _) =>
                     {

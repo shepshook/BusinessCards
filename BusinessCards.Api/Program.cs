@@ -8,13 +8,14 @@ builder.RegisterServices();
 var app = builder.Build();
 
 app.MapGet("cards",
-    (IMediator mediator, CancellationToken ct, HttpContext context) => 
+    (IMediator mediator, CancellationToken ct) => 
         mediator.Send(new GetUserCardsQuery(), ct))
         .RequireAuthorization();
 
 app.MapGet("cards/{id:length(24)}",
     (string id, IMediator mediator, CancellationToken ct) =>
-        mediator.Send(new GetCardQuery(id), ct)).RequireAuthorization();
+        mediator.Send(new GetCardQuery(id), ct))
+        .RequireAuthorization();
 
 app.MapPost("cards",
     (CreateCardCommand command, IMediator mediator, CancellationToken ct) =>
