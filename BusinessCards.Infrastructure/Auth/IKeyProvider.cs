@@ -2,7 +2,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace BusinessCards.Infrastructure.Auth;
 
-public interface IKeysProvider
+public interface IKeyProvider
 {
-    Task<IEnumerable<SecurityKey>> GetKeys();
+    Task<SecurityKey> GetKey(string keyId);
 }

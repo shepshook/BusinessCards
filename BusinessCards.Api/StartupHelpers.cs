@@ -20,12 +20,11 @@ public static partial class StartupHelpers
         builder.Services.AddMemoryCache();
         builder.Services.AddMediatR(AppDomain.CurrentDomain.GetAssemblies());
 
-        builder.Services.AddScoped<CardsRepository>();
+        builder.Services.AddScoped<ICardsRepository, CardsRepository>();
         builder.Services.Configure<DbSettings>(builder.Configuration.GetSection(DbSettings.Section));
 
-        builder.Services.AddHttpClient<JwtValidationKeysProvider>();
-        builder.Services.AddSingleton<IKeysProvider, JwtValidationKeysProvider>();
-        builder.Services.AddSingleton<IPostConfigureOptions<JwtBearerOptions>, ConfigureValidationKeysJwtBearerOptions>();
+        builder.Services.AddHttpClient<FirebaseJwtValidationKeysProvider>();
+        builder.Services.AddSingleton<IKeyProvider, FirebaseJwtValidationKeysProvider>();
         builder.Services.AddScoped<IUserAccessor, UserAccessor>();
         builder.Services
             .AddAuthorization()
@@ -36,11 +35,21 @@ public static partial class StartupHelpers
             })
             .AddJwtBearer(opt =>
             {
+                var serviceProvider = builder.Services.BuildServiceProvider();
+
                 opt.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateLifetime = false,
-                    TryAllIssuerSigningKeys = true,
+                    IssuerSigningKeyResolver = (_, _, keyId, _) =>
+                    {
+                        var keysProvider = serviceProvider.GetRequiredService<IKeyProvider>();
+                        return new List<SecurityKey> 
+                        {
+                            keysProvider.GetKey(keyId).GetAwaiter().GetResult()
+                        };
+                    }
                 };
+                
                 opt.Authority = authOptions.Authority;
                 opt.Audience = authOptions.Audience;
                 opt.MapInboundClaims = false;
