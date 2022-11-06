@@ -1,6 +1,6 @@
-namespace BusinessCards.Infrastructure;
-
 using BusinessCards.Domain;
+
+namespace BusinessCards.Infrastructure.Database;
 
 public class ContactData
 {

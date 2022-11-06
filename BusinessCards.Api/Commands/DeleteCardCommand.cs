@@ -1,17 +1,15 @@
-namespace BusinessCards.Api;
-
-using System.Threading;
-using System.Threading.Tasks;
-using BusinessCards.Infrastructure;
+using BusinessCards.Infrastructure.Database;
 using MediatR;
+
+namespace BusinessCards.Api;
 
 public record DeleteCardCommand(string Id) : IRequest;
 
 public class DeleteCardCommandHandler : IRequestHandler<DeleteCardCommand>
 {
-    private readonly CardsRepository _repository;
+    private readonly ICardsRepository _repository;
 
-    public DeleteCardCommandHandler(CardsRepository repository) => _repository = repository;
+    public DeleteCardCommandHandler(ICardsRepository repository) => _repository = repository;
 
     // TODO: Authorization
     public async Task<Unit> Handle(DeleteCardCommand command, CancellationToken ct)

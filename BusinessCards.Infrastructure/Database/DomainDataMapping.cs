@@ -1,7 +1,7 @@
-namespace BusinessCards.Infrastructure;
-
 using BusinessCards.Domain;
 using MongoDB.Driver;
+
+namespace BusinessCards.Infrastructure.Database;
 
 public static class DomainDataMapping
 {

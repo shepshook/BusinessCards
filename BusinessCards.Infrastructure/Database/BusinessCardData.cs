@@ -1,7 +1,7 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace BusinessCards.Infrastructure;
+namespace BusinessCards.Infrastructure.Database;
 
 public class BusinessCardData
 {

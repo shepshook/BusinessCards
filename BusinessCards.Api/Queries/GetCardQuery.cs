@@ -1,8 +1,8 @@
-namespace BusinessCards.Api;
-
 using BusinessCards.Domain;
-using BusinessCards.Infrastructure;
+using BusinessCards.Infrastructure.Database;
 using MediatR;
+
+namespace BusinessCards.Api;
 
 public class GetCardQuery : IRequest<BusinessCard>
 {
@@ -16,9 +16,9 @@ public class GetCardQuery : IRequest<BusinessCard>
 
 public class GetCardQueryHandler : IRequestHandler<GetCardQuery, BusinessCard>
 {
-    private readonly CardsRepository _repository;
+    private readonly ICardsRepository _repository;
 
-    public GetCardQueryHandler(CardsRepository repository) => 
+    public GetCardQueryHandler(ICardsRepository repository) => 
         _repository = repository ?? throw new ArgumentNullException(nameof(repository));
 
     public Task<BusinessCard> Handle(GetCardQuery query, CancellationToken ct) => 

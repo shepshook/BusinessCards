@@ -1,9 +1,9 @@
-namespace BusinessCards.Infrastructure;
-
 using System.Linq.Expressions;
 using BusinessCards.Domain;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
+
+namespace BusinessCards.Infrastructure.Database;
 
 public class CardsRepository : ICardsRepository
 {

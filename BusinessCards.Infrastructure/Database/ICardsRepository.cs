@@ -1,7 +1,7 @@
-namespace BusinessCards.Infrastructure;
-
 using System.Linq.Expressions;
 using BusinessCards.Domain;
+
+namespace BusinessCards.Infrastructure.Database;
 
 public interface ICardsRepository
 {

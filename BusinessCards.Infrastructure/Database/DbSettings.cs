@@ -1,4 +1,4 @@
-namespace BusinessCards.Infrastructure;
+namespace BusinessCards.Infrastructure.Database;
 
 public class DbSettings
 {

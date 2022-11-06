@@ -1,18 +1,16 @@
-namespace BusinessCards.Api;
-
-using System.Threading;
-using System.Threading.Tasks;
 using BusinessCards.Domain;
-using BusinessCards.Infrastructure;
+using BusinessCards.Infrastructure.Database;
 using MediatR;
+
+namespace BusinessCards.Api;
 
 public record UpdateCardCommand(string Id, string Name, string Position, string Company, List<string> SharedUsersIds, List<Contact> Contacts) : IRequest;
 
 public class UpdateCardCommandHandler : IRequestHandler<UpdateCardCommand>
 {
-    private readonly CardsRepository _repository;
+    private readonly ICardsRepository _repository;
 
-    public UpdateCardCommandHandler(CardsRepository repository) => _repository = repository;
+    public UpdateCardCommandHandler(ICardsRepository repository) => _repository = repository;
 
     public async Task<Unit> Handle(UpdateCardCommand command, CancellationToken ct)
     {
