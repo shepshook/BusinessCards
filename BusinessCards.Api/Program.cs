@@ -8,6 +8,12 @@ var app = builder.Build();
 
 app.MapEndpoints();
 
+var port = Environment.GetEnvironmentVariable("PORT");
+if (port != null)
+{
+    app.Urls.Add($"http://*:{port}");
+}
+
 app.UseSwagger();
 app.UseSwaggerUI(opt =>
 {
