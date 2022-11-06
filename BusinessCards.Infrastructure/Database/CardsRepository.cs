@@ -30,8 +30,12 @@ public class CardsRepository : ICardsRepository
         return result.Select(x => x.ToDomain()).ToList();
     }
 
-    public Task Create(BusinessCard card, CancellationToken ct) =>
-        _collection.InsertOneAsync(card.ToData(), cancellationToken: ct);
+    public async Task<string> Create(BusinessCard card, CancellationToken ct)
+    {
+        var cardData = card.ToData();
+        await _collection.InsertOneAsync(card.ToData(), cancellationToken: ct);
+        return cardData.Id!;
+    }
 
     public Task Update(string id, BusinessCard card, CancellationToken ct) =>
         _collection.ReplaceOneAsync(x => x.Id == id, card.ToData(), cancellationToken: ct);

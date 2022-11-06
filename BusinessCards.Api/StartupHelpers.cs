@@ -11,11 +11,22 @@ public static partial class StartupHelpers
 {
     public static void RegisterServices(this WebApplicationBuilder builder)
     {
-        var authOptions = new AuthOptions();
-        builder.Configuration.GetSection(AuthOptions.Section).Bind(authOptions);
+        builder.Services.AddSwaggerSupport();
 
-        builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen(opt =>
+        builder.Services.AddHttpContextAccessor();
+        builder.Services.AddMemoryCache();
+        builder.Services.AddMediatR(AppDomain.CurrentDomain.GetAssemblies());
+
+        builder.Services.AddScoped<ICardsRepository, CardsRepository>();
+        builder.Services.Configure<DbSettings>(builder.Configuration.GetSection(DbSettings.Section));
+
+        builder.Services.AddJwtAuthentication(builder.Configuration);
+    }
+
+    private static IServiceCollection AddSwaggerSupport(this IServiceCollection services)
+    {
+        services.AddEndpointsApiExplorer();
+        services.AddSwaggerGen(opt =>
         {
             opt.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
@@ -42,17 +53,19 @@ public static partial class StartupHelpers
             });
         });
 
-        builder.Services.AddHttpContextAccessor();
-        builder.Services.AddMemoryCache();
-        builder.Services.AddMediatR(AppDomain.CurrentDomain.GetAssemblies());
+        return services;
+    }
 
-        builder.Services.AddScoped<ICardsRepository, CardsRepository>();
-        builder.Services.Configure<DbSettings>(builder.Configuration.GetSection(DbSettings.Section));
+    private static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
+    {
+        var authOptions = new AuthOptions();
+        configuration.GetSection(AuthOptions.Section).Bind(authOptions);
 
-        builder.Services.AddHttpClient<FirebaseJwtValidationKeysProvider>();
-        builder.Services.AddSingleton<IKeyProvider, FirebaseJwtValidationKeysProvider>();
-        builder.Services.AddScoped<IUserAccessor, UserAccessor>();
-        builder.Services
+        services.AddHttpClient<FirebaseJwtValidationKeysProvider>();
+        services.AddSingleton<IKeyProvider, FirebaseJwtValidationKeysProvider>();
+        services.AddScoped<IUserAccessor, UserAccessor>();
+
+        services
             .AddAuthorization()
             .AddAuthentication(opt =>
             {
@@ -61,7 +74,7 @@ public static partial class StartupHelpers
             })
             .AddJwtBearer(opt =>
             {
-                var serviceProvider = builder.Services.BuildServiceProvider();
+                var serviceProvider = services.BuildServiceProvider();
 
                 opt.TokenValidationParameters = new TokenValidationParameters
                 {
@@ -82,5 +95,8 @@ public static partial class StartupHelpers
                 opt.Audience = authOptions.Audience;
                 opt.MapInboundClaims = false;
             });
+
+        return services;
     }
+
 }

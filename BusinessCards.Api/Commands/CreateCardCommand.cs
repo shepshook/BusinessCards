@@ -5,9 +5,9 @@ using MediatR;
 
 namespace BusinessCards.Api;
 
-public record CreateCardCommand(string Name, string Position, string Company, List<Contact> Contacts) : IRequest;
+public record CreateCardCommand(string Name, string Position, string Company, List<Contact> Contacts) : IRequest<string>;
 
-public class CreateCardCommandHandler : IRequestHandler<CreateCardCommand>
+public class CreateCardCommandHandler : IRequestHandler<CreateCardCommand, string>
 {
     private readonly ICardsRepository _repository;
     private readonly IUserAccessor _userAccessor;
@@ -18,7 +18,7 @@ public class CreateCardCommandHandler : IRequestHandler<CreateCardCommand>
         _userAccessor = userAccessor ?? throw new ArgumentNullException(nameof(userAccessor));
     }
 
-    public async Task<Unit> Handle(CreateCardCommand command, CancellationToken ct)
+    public async Task<string> Handle(CreateCardCommand command, CancellationToken ct)
     {
         var card = new BusinessCard
         (
@@ -29,8 +29,8 @@ public class CreateCardCommandHandler : IRequestHandler<CreateCardCommand>
             command.Contacts.ToList()
         );
 
-        await _repository.Create(card, ct);
+        var id = await _repository.Create(card, ct);
 
-        return Unit.Value;
+        return id;
     }
 }
